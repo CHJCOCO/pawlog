@@ -451,57 +451,53 @@ export default function Home() {
             </button>
           </div>
         </div>
-      </main>
 
-      {/* 하단 고정 빠른 기록 버튼들 */}
-      <div className="fixed bottom-20 left-0 right-0 px-4">
-        <div className="max-w-md mx-auto">
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-4 border border-apricot-200/50">
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="text-lg">✨</span>
-              <p className="text-sm font-medium text-warm-gray-700">빠른 기록</p>
-              <span className="text-lg">✨</span>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Link href="/records">
-                <Button 
-                  className="w-full bg-gradient-to-r from-mint-400 to-mint-500 hover:from-mint-500 hover:to-mint-600 text-white rounded-full py-3 flex flex-col items-center gap-1 shadow-md hover:scale-105 transition-all duration-200"
-                >
-                  <div className="text-lg">🚶</div>
-                  <span className="text-xs font-medium">루틴 기록</span>
-                </Button>
-              </Link>
-              
-              <Link href="/health">
-                <Button 
-                  className="w-full bg-gradient-to-r from-apricot-400 to-apricot-500 hover:from-apricot-500 hover:to-apricot-600 text-white rounded-full py-3 flex flex-col items-center gap-1 shadow-md hover:scale-105 transition-all duration-200"
-                >
-                  <div className="text-lg">🩺</div>
-                  <span className="text-xs font-medium">건강 관리</span>
-                </Button>
-              </Link>
-              
-              <Link href="/diary">
-                <Button 
-                  className="w-full bg-gradient-to-r from-coral-400 to-coral-500 hover:from-coral-500 hover:to-coral-600 text-white rounded-full py-3 flex flex-col items-center gap-1 shadow-md hover:scale-105 transition-all duration-200"
-                >
-                  <div className="text-lg">📷</div>
-                  <span className="text-xs font-medium">감성 일기</span>
-                </Button>
-              </Link>
-              
-              <Link href="/community">
-                <Button 
-                  className="w-full bg-gradient-to-r from-blue-400 to-purple-500 hover:from-blue-500 hover:to-purple-600 text-white rounded-full py-3 flex flex-col items-center gap-1 shadow-md hover:scale-105 transition-all duration-200"
-                >
-                  <div className="text-lg">🌍</div>
-                  <span className="text-xs font-medium">커뮤니티</span>
-                </Button>
-              </Link>
-            </div>
-          </div>
+        {/* 빠른 기록 섹션 (인라인) */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-4 border border-apricot-200/50">
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <span className="text-lg">✨</span>
+          <p className="text-sm font-medium text-warm-gray-700">빠른 기록</p>
+          <span className="text-lg">✨</span>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Link href="/records">
+            <Button 
+              className="w-full bg-gradient-to-r from-mint-400 to-mint-500 hover:from-mint-500 hover:to-mint-600 text-white rounded-xl py-2.5 flex flex-col items-center gap-1 shadow-md hover:scale-105 transition-all duration-200"
+            >
+              <div className="text-base">🚶</div>
+              <span className="text-xs font-medium">루틴 기록</span>
+            </Button>
+          </Link>
+          
+          <Link href="/health">
+            <Button 
+              className="w-full bg-gradient-to-r from-apricot-400 to-apricot-500 hover:from-apricot-500 hover:to-apricot-600 text-white rounded-xl py-2.5 flex flex-col items-center gap-1 shadow-md hover:scale-105 transition-all duration-200"
+            >
+              <div className="text-base">🩺</div>
+              <span className="text-xs font-medium">건강 관리</span>
+            </Button>
+          </Link>
+          
+          <Link href="/diary">
+            <Button 
+              className="w-full bg-gradient-to-r from-coral-400 to-coral-500 hover:from-coral-500 hover:to-coral-600 text-white rounded-xl py-2.5 flex flex-col items-center gap-1 shadow-md hover:scale-105 transition-all duration-200"
+            >
+              <div className="text-base">📷</div>
+              <span className="text-xs font-medium">감성 일기</span>
+            </Button>
+          </Link>
+          
+          <Link href="/community">
+            <Button 
+              className="w-full bg-gradient-to-r from-blue-400 to-purple-500 hover:from-blue-500 hover:to-purple-600 text-white rounded-xl py-2.5 flex flex-col items-center gap-1 shadow-md hover:scale-105 transition-all duration-200"
+            >
+              <div className="text-base">🌍</div>
+              <span className="text-xs font-medium">커뮤니티</span>
+            </Button>
+          </Link>
         </div>
       </div>
+      </main>
 
       {/* 반려견 프로필 모달 */}
       <DogProfileModal 
