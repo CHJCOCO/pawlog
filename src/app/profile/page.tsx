@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAppStore } from '@/lib/store';
-import { formatDate } from '@/lib/utils';
+import { formatDate, fileToBase64, resizeImage } from '@/lib/utils';
 import Button from '@/components/ui/Button';
 import BottomSheet from '@/components/ui/BottomSheet';
 import BottomNavigation from '@/components/BottomNavigation';
@@ -69,10 +69,13 @@ export default function ProfilePage() {
     weight: '',
     photo: ''
   });
+  const [isUploadingDogPhoto, setIsUploadingDogPhoto] = useState(false);
 
   // 클라이언트 상태 및 랜덤 일수
   const [isClient, setIsClient] = useState(false);
   const [happyDays, setHappyDays] = useState(0);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   // 클라이언트 마운트 시 랜덤 일수 설정
   useEffect(() => {
@@ -101,28 +104,122 @@ export default function ProfilePage() {
   };
 
   // 프로필 저장
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     if (!selectedDog) return;
 
-    const updatedDog = {
-      ...selectedDog,
-      name: editForm.name.trim(),
-      breed: editForm.breed.trim(),
-      birthDate: new Date(editForm.birthDate).toISOString(),
-      weight: parseFloat(editForm.weight) || 0,
-      photo: editForm.photo.trim() || undefined
-    };
+    try {
+      const updatedDog = {
+        ...selectedDog,
+        name: editForm.name.trim(),
+        breed: editForm.breed.trim(),
+        birthDate: editForm.birthDate,
+        weight: parseFloat(editForm.weight) || 0,
+        photo: editForm.photo || undefined
+      };
 
-    updateDog(selectedDog.id, updatedDog);
-    setIsEditProfileOpen(false);
-    setSelectedDog(null);
+      console.log('반려견 프로필 업데이트 중...', updatedDog);
+      await updateDog(selectedDog.id, updatedDog);
+      console.log('반려견 프로필 업데이트 완료!');
+      
+      setIsEditProfileOpen(false);
+      setSelectedDog(null);
+      
+      // 성공 메시지
+      setTimeout(() => {
+        alert(`${editForm.name}의 프로필이 성공적으로 업데이트되었습니다! 🐕`);
+      }, 200);
+      
+    } catch (error) {
+      console.error('반려견 프로필 업데이트 중 오류:', error);
+      alert('프로필 업데이트 중 오류가 발생했습니다.');
+    }
   };
 
-  // 사진 업로드 시뮬레이션
+  // 반려견 프로필 사진 업로드
   const handlePhotoUpload = () => {
-    // 실제로는 파일 선택기를 열고 이미지 업로드
-    const dummyPhoto = `https://picsum.photos/200/200?random=${Date.now()}`;
-    setEditForm(prev => ({ ...prev, photo: dummyPhoto }));
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      
+      try {
+        setIsUploadingDogPhoto(true);
+        console.log('반려견 프로필 사진 업로드 시작...');
+        
+        // 실제 파일을 Base64로 변환
+        const base64 = await fileToBase64(file);
+        console.log('Base64 변환 완료');
+        
+        // 이미지 리사이징 (400x400으로 프로필 사진 최적화)
+        const resizedBase64 = await resizeImage(base64, 400, 400);
+        console.log('이미지 리사이징 완료');
+        
+        // 폼 상태 업데이트
+        setEditForm(prev => ({ ...prev, photo: resizedBase64 }));
+        console.log('반려견 프로필 사진 업로드 완료!');
+        
+      } catch (error) {
+        console.error('반려견 프로필 사진 업로드 중 오류:', error);
+        alert('사진 업로드 중 오류가 발생했습니다.');
+      } finally {
+        setIsUploadingDogPhoto(false);
+      }
+    };
+    input.click();
+  };
+
+  // 사용자 프로필 사진 업로드
+  const handleUserPhotoUpload = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      
+      try {
+        setIsUploadingAvatar(true);
+        console.log('사용자 프로필 사진 업로드 시작...');
+        
+        // 실제 파일을 Base64로 변환
+        const base64 = await fileToBase64(file);
+        console.log('Base64 변환 완료, 크기:', base64.length);
+        
+        // 이미지 리사이징 (400x400으로 프로필 사진 최적화)
+        const resizedBase64 = await resizeImage(base64, 400, 400);
+        console.log('이미지 리사이징 완료, 최종 크기:', resizedBase64.length);
+        
+        // 사용자 정보 업데이트
+        if (user) {
+          console.log('👤 사용자 프로필 업데이트 중..., 현재 user:', user.email);
+          console.log('🔄 updateUser 호출 시작');
+          
+          // updateUser 호출
+          await updateUser({ avatar: resizedBase64 });
+          
+          console.log('✅ updateUser 완료');
+          
+          // 강제 리렌더링
+          setForceUpdate(prev => prev + 1);
+          
+          // 성공 메시지
+          alert('프로필 사진이 변경되었습니다! 🎉');
+          console.log('✅ 프로필 사진 업데이트 성공');
+          
+        } else {
+          console.error('❌ 사용자 정보가 없습니다! 로그인이 필요합니다.');
+          alert('❌ 사용자 정보를 찾을 수 없습니다. 로그인 후 다시 시도해주세요.');
+        }
+      } catch (error) {
+        console.error('프로필 사진 업로드 중 오류:', error);
+        alert('프로필 사진 업로드 중 오류가 발생했습니다.');
+      } finally {
+        setIsUploadingAvatar(false);
+      }
+    };
+    input.click();
   };
 
   // 알림 토글
@@ -194,12 +291,39 @@ export default function ProfilePage() {
         {/* 사용자 프로필 카드 */}
         <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg p-6 mb-6 border border-pink-200">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-pink-400 rounded-full flex items-center justify-center text-white text-2xl shadow-lg">
-              <User className="w-8 h-8" />
+            <div className="relative">
+              {user?.avatar ? (
+                <img 
+                  key={`user-avatar-${forceUpdate}`}
+                  src={user.avatar} 
+                  alt="프로필"
+                  className="w-16 h-16 rounded-full object-cover border-4 border-pink-200 shadow-lg"
+                />
+              ) : (
+                <div key={`user-default-${forceUpdate}`} className="w-16 h-16 bg-gradient-to-br from-orange-400 to-pink-400 rounded-full flex items-center justify-center text-white text-2xl shadow-lg">
+                  {user?.name?.charAt(0) || user?.nickname?.charAt(0) || <User className="w-8 h-8" />}
+                </div>
+              )}
+              <button
+                onClick={handleUserPhotoUpload}
+                disabled={isUploadingAvatar}
+                className={`absolute -bottom-1 -right-1 text-white p-2 rounded-full shadow-lg transition-transform ${
+                  isUploadingAvatar 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-gradient-to-br from-pink-400 to-orange-400 hover:scale-110'
+                }`}
+                title={isUploadingAvatar ? "업로드 중..." : "프로필 사진 변경"}
+              >
+                {isUploadingAvatar ? (
+                  <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <Camera className="w-3 h-3" />
+                )}
+              </button>
             </div>
             <div className="flex-1">
-                          <h2 className="text-xl font-bold text-gray-900">{user?.name || '반려인'}</h2>
-            <p className="text-gray-600">{user?.email || 'pawlog_user@gmail.com'}</p>
+              <h2 className="text-xl font-bold text-gray-900">{user?.name || '반려인'}</h2>
+              <p className="text-gray-600">{user?.email || 'pawlog_user@gmail.com'}</p>
               <div className="flex items-center gap-2 mt-1">
                 <Star className="w-4 h-4 text-yellow-500" />
                 <span className="text-sm text-gray-500">
@@ -520,10 +644,24 @@ export default function ProfilePage() {
                 )}
                 <button
                   onClick={handlePhotoUpload}
-                  className="mt-3 bg-gradient-to-r from-orange-400 to-pink-400 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 mx-auto"
+                  disabled={isUploadingDogPhoto}
+                  className={`mt-3 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 mx-auto transition-colors ${
+                    isUploadingDogPhoto 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-gradient-to-r from-orange-400 to-pink-400 hover:from-orange-500 hover:to-pink-500'
+                  }`}
                 >
-                  <Camera className="w-4 h-4" />
-                  사진 변경
+                  {isUploadingDogPhoto ? (
+                    <>
+                      <div className="w-4 h-4 border border-white border-t-transparent rounded-full animate-spin"></div>
+                      업로드 중...
+                    </>
+                  ) : (
+                    <>
+                      <Camera className="w-4 h-4" />
+                      사진 변경
+                    </>
+                  )}
                 </button>
               </div>
 

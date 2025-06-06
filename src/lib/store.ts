@@ -168,17 +168,52 @@ export const useAppStore = create<AppState>()(
   
   updateUser: async (userData) => {
     const { user } = get();
-    if (!user) return;
+    if (!user) {
+      console.error('❌ 사용자가 없어서 업데이트 불가');
+      throw new Error('User not found');
+    }
     
     try {
-      const storage = getLocalStorageService();
-      const updatedUser = await storage.update('users', user.id, {
+      console.log('🔄 updateUser 호출됨');
+      console.log('📝 업데이트할 데이터:', userData);
+      console.log('👤 현재 사용자:', user);
+      
+      const updatedUser = {
+        ...user,
         ...userData,
         updatedAt: new Date(),
-      });
+      };
+      
+      console.log('🆕 업데이트될 사용자 정보:', updatedUser);
+      
+      // 상태 업데이트
       set({ user: updatedUser });
+      
+      console.log('✅ Zustand 상태 업데이트 완료');
+      
+      // 즉시 localStorage 확인
+      if (typeof window !== 'undefined') {
+        const storageData = localStorage.getItem('pawlog-storage');
+        if (storageData) {
+          try {
+            const parsed = JSON.parse(storageData);
+            console.log('💾 localStorage 상태:', parsed.state?.user);
+          } catch (e) {
+            console.warn('localStorage 파싱 실패:', e);
+          }
+        }
+      }
+      
+      // 상태 재확인
+      const finalState = get();
+      console.log('🔍 최종 상태 확인:', finalState.user);
+      
+      // return updatedUser; // 타입 에러 방지
+      
     } catch (error) {
+      console.error('❌ 사용자 업데이트 오류:', error);
       set({ error: 'Failed to update user' });
+      throw error;
     }
   },
   
@@ -218,17 +253,41 @@ export const useAppStore = create<AppState>()(
   
   updateDog: async (id, dogData) => {
     try {
-      const storage = getLocalStorageService();
-      const updatedDog = await storage.update<Dog>('dogs', id, {
-        ...dogData,
-        birthDate: dogData.birthDate ? new Date(dogData.birthDate) : undefined,
-      });
+      console.log('updateDog 호출됨:', { id, dogData });
       
+      // 현재 강아지 정보를 가져와서 병합
+      const currentDog = get().dogs.find(dog => dog.id === id);
+      if (!currentDog) {
+        throw new Error(`Dog with id ${id} not found`);
+      }
+      
+      const updatedDog = {
+        ...currentDog,
+        ...dogData,
+        birthDate: dogData.birthDate ? new Date(dogData.birthDate) : currentDog.birthDate,
+        updatedAt: new Date(),
+      };
+      
+      console.log('업데이트될 강아지 정보:', updatedDog);
+      
+      // Zustand 상태 직접 업데이트 (persist가 자동으로 localStorage에 저장)
       set((state) => ({
         dogs: state.dogs.map((dog) => dog.id === id ? updatedDog : dog)
       }));
+      
+      console.log('강아지 프로필 업데이트 완료!');
+      
+      // 상태가 실제로 업데이트되었는지 확인
+      setTimeout(() => {
+        const newState = get();
+        const updatedDogInState = newState.dogs.find(dog => dog.id === id);
+        console.log('최종 상태 확인:', updatedDogInState);
+      }, 100);
+      
     } catch (error) {
+      console.error('강아지 프로필 업데이트 오류:', error);
       set({ error: 'Failed to update dog' });
+      throw error;
     }
   },
   
@@ -506,7 +565,10 @@ export const useAppStore = create<AppState>()(
   addDiaryEntry: async (entryData) => {
     try {
       const { user, dogs } = get();
-      if (!user) throw new Error('User not authenticated');
+      if (!user) {
+        console.error('❌ 일기 추가 실패: 사용자 인증이 필요합니다');
+        throw new Error('User not authenticated');
+      }
       
       const storage = getLocalStorageService();
       const newEntry = await storage.create<DiaryEntry>('diaryEntries', {
@@ -558,25 +620,47 @@ export const useAppStore = create<AppState>()(
     try {
       const { user } = get();
       const storage = getLocalStorageService();
-      const updatedEntry = await storage.update<DiaryEntry>('diaryEntries', id, {
-        ...entryData,
-        date: entryData.date ? new Date(entryData.date) : undefined,
-        wordCount: entryData.content ? entryData.content.length : undefined,
-        // 커뮤니티 필드가 제공되면 업데이트
-        ...(entryData.isPublic !== undefined && { 
-          isPublic: entryData.isPublic,
-          userId: user?.id || 'unknown',
-          nickname: user?.nickname || '알 수 없음'
-        }),
-      });
+      
+      // 기존 엔트리 정보 가져오기
+      const existingEntry = await storage.read<DiaryEntry>('diaryEntries', id);
+      if (!existingEntry) {
+        throw new Error(`Diary entry with id ${id} not found`);
+      }
+      
+      // 업데이트할 데이터 준비 (undefined 값은 제외)
+      const updateData: Partial<DiaryEntry> = {};
+      
+      if (entryData.title !== undefined) updateData.title = entryData.title;
+      if (entryData.content !== undefined) {
+        updateData.content = entryData.content;
+        updateData.wordCount = entryData.content.length;
+      }
+      if (entryData.mood !== undefined) updateData.mood = entryData.mood;
+      if (entryData.tags !== undefined) updateData.tags = entryData.tags;
+      if (entryData.photos !== undefined) updateData.photos = entryData.photos;
+      if (entryData.dogId !== undefined) updateData.dogId = entryData.dogId;
+      if (entryData.date !== undefined) updateData.date = new Date(entryData.date);
+      
+      // 커뮤니티 필드 처리
+      if (entryData.isPublic !== undefined) {
+        updateData.isPublic = entryData.isPublic;
+        updateData.userId = user?.id || 'unknown';
+        updateData.nickname = user?.nickname || '알 수 없음';
+      }
+      
+      const updatedEntry = await storage.update<DiaryEntry>('diaryEntries', id, updateData);
       
       set((state) => ({
         diaryEntries: state.diaryEntries.map((entry) =>
           entry.id === id ? updatedEntry : entry
         )
       }));
+      
+      console.log('✅ 일기 수정 완료:', { id, updatedEntry });
     } catch (error) {
+      console.error('❌ 일기 수정 실패:', error);
       set({ error: 'Failed to update diary entry' });
+      throw error;
     }
   },
   

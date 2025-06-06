@@ -14,51 +14,117 @@ export function generateId(): string {
 }
 
 // 날짜 포맷팅 함수들
-export function formatDate(date: Date): string {
-  return format(date, 'yyyy-MM-dd', { locale: ko });
+export function formatDate(date: Date | string | null | undefined): string {
+  try {
+    // 값이 없으면 오늘 날짜 반환
+    if (!date) {
+      console.warn('No date provided to formatDate, using current date');
+      return new Date().toISOString().split('T')[0];
+    }
+
+    // Date 객체로 변환
+    let dateObj: Date;
+    if (date instanceof Date) {
+      dateObj = date;
+    } else if (typeof date === 'string') {
+      dateObj = new Date(date);
+    } else {
+      console.warn('Invalid date type provided to formatDate:', typeof date, date);
+      return new Date().toISOString().split('T')[0];
+    }
+
+    // 유효한 날짜인지 확인
+    if (isNaN(dateObj.getTime())) {
+      console.warn('Invalid date provided to formatDate:', date);
+      return new Date().toISOString().split('T')[0]; // 오늘 날짜를 기본값으로 반환
+    }
+
+    return format(dateObj, 'yyyy-MM-dd', { locale: ko });
+  } catch (error) {
+    console.error('Error formatting date:', error, date);
+    return new Date().toISOString().split('T')[0]; // 오늘 날짜를 기본값으로 반환
+  }
 }
 
-export function formatDateTime(date: Date): string {
-  return format(date, 'yyyy-MM-dd HH:mm', { locale: ko });
+export function formatDateTime(date: Date | string): string {
+  try {
+    const dateObj = date instanceof Date ? date : new Date(date);
+    if (isNaN(dateObj.getTime())) {
+      return new Date().toISOString().replace('T', ' ').substring(0, 16);
+    }
+    return format(dateObj, 'yyyy-MM-dd HH:mm', { locale: ko });
+  } catch (error) {
+    console.error('Error formatting datetime:', error, date);
+    return new Date().toISOString().replace('T', ' ').substring(0, 16);
+  }
 }
 
-export function formatTime(date: Date): string {
-  return format(date, 'HH:mm', { locale: ko });
+export function formatTime(date: Date | string): string {
+  try {
+    const dateObj = date instanceof Date ? date : new Date(date);
+    if (isNaN(dateObj.getTime())) {
+      return new Date().toTimeString().substring(0, 5);
+    }
+    return format(dateObj, 'HH:mm', { locale: ko });
+  } catch (error) {
+    console.error('Error formatting time:', error, date);
+    return new Date().toTimeString().substring(0, 5);
+  }
 }
 
-export function formatRelativeTime(date: Date): string {
-  if (isToday(date)) {
-    return `오늘 ${formatTime(date)}`;
+export function formatRelativeTime(date: Date | string): string {
+  try {
+    const dateObj = date instanceof Date ? date : new Date(date);
+    if (isNaN(dateObj.getTime())) {
+      return '방금 전';
+    }
+    
+    if (isToday(dateObj)) {
+      return `오늘 ${formatTime(dateObj)}`;
+    }
+    if (isYesterday(dateObj)) {
+      return `어제 ${formatTime(dateObj)}`;
+    }
+    if (isTomorrow(dateObj)) {
+      return `내일 ${formatTime(dateObj)}`;
+    }
+    return formatDistanceToNow(dateObj, { addSuffix: true, locale: ko });
+  } catch (error) {
+    console.error('Error formatting relative time:', error, date);
+    return '방금 전';
   }
-  if (isYesterday(date)) {
-    return `어제 ${formatTime(date)}`;
-  }
-  if (isTomorrow(date)) {
-    return `내일 ${formatTime(date)}`;
-  }
-  return formatDistanceToNow(date, { addSuffix: true, locale: ko });
 }
 
 // 나이 계산 함수
-export function calculateAge(birthDate: Date): string {
-  const today = new Date();
-  const birth = new Date(birthDate);
-  
-  let years = today.getFullYear() - birth.getFullYear();
-  let months = today.getMonth() - birth.getMonth();
-  
-  if (months < 0) {
-    years--;
-    months += 12;
-  }
-  
-  if (years > 0) {
-    return `${years}살`;
-  } else if (months > 0) {
-    return `${months}개월`;
-  } else {
-    const days = Math.floor((today.getTime() - birth.getTime()) / (1000 * 60 * 60 * 24));
-    return `${days}일`;
+export function calculateAge(birthDate: Date | string): string {
+  try {
+    const today = new Date();
+    const birth = birthDate instanceof Date ? birthDate : new Date(birthDate);
+    
+    if (isNaN(birth.getTime())) {
+      console.warn('Invalid birth date provided to calculateAge:', birthDate);
+      return '알 수 없음';
+    }
+    
+    let years = today.getFullYear() - birth.getFullYear();
+    let months = today.getMonth() - birth.getMonth();
+    
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+    
+    if (years > 0) {
+      return `${years}살`;
+    } else if (months > 0) {
+      return `${months}개월`;
+    } else {
+      const days = Math.floor((today.getTime() - birth.getTime()) / (1000 * 60 * 60 * 24));
+      return days > 0 ? `${days}일` : '오늘 태어남';
+    }
+  } catch (error) {
+    console.error('Error calculating age:', error, birthDate);
+    return '알 수 없음';
   }
 }
 

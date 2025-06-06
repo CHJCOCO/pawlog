@@ -192,15 +192,15 @@ export default function Home() {
   const routineStatus = getTodayRoutineStatus(mainDog.id);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-apricot-50 to-apricot-100 pb-28">
+    <div className="min-h-screen instagram-bg pb-28">
       <main className="max-w-md mx-auto px-4 py-6 space-y-6">
         {/* 감성 메시지 */}
-        <div className="text-center py-6 px-4 bg-white/60 backdrop-blur-sm rounded-2xl shadow-md border border-apricot-200/50">
-          <div className="text-2xl mb-3">✨</div>
-          <p className="text-lg font-medium text-warm-gray-800 mb-2 leading-relaxed">
+        <div className="text-center py-8 px-6 glass-effect rounded-3xl shadow-lg">
+          <div className="text-4xl mb-4 instagram-float">🌸</div>
+          <p className="text-xl font-serif font-medium text-warm-gray-800 mb-3 leading-relaxed">
             {getRandomEmotionalMessage()}
           </p>
-          <p className="text-sm text-soft-gray-400">
+          <p className="text-sm text-soft-gray-400 font-light">
             {new Date().toLocaleDateString('ko-KR', { 
               year: 'numeric', 
               month: 'long', 
@@ -211,16 +211,16 @@ export default function Home() {
         </div>
 
         {/* 대표 반려견 카드 */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-md p-6 border border-apricot-200/30">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-warm-gray-800 flex items-center gap-2">
+        <div className="instagram-card glass-effect rounded-3xl shadow-lg p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-serif font-bold text-warm-gray-800 flex items-center gap-3">
               🐾 우리 가족
             </h3>
             <button
               onClick={() => handleDogCardClick(mainDog)}
-              className="p-2 rounded-full bg-apricot-100 hover:bg-apricot-200 transition-all duration-200 hover:scale-105"
+              className="p-3 rounded-full bg-gradient-to-br from-soft-pink-100 to-peach-100 hover:from-soft-pink-200 hover:to-peach-200 transition-all duration-200 hover:scale-105"
             >
-              <Edit3 className="w-4 h-4 text-apricot-600" />
+              <Edit3 className="w-5 h-5 text-soft-pink-600" />
             </button>
           </div>
           
@@ -229,25 +229,25 @@ export default function Home() {
               <img 
                 src={mainDog.photo} 
                 alt={mainDog.name}
-                className="w-20 h-20 rounded-full object-cover border-4 border-apricot-300 shadow-lg hover:scale-105 transition-transform duration-200"
+                className="w-24 h-24 rounded-full object-cover border-4 border-gradient-to-br from-soft-pink-300 to-peach-300 shadow-xl hover:scale-110 transition-transform duration-300 image-hover-effect"
               />
             ) : (
-              <div className="w-20 h-20 bg-gradient-to-br from-apricot-200 to-coral-200 rounded-full flex items-center justify-center text-3xl border-4 border-apricot-300 shadow-lg hover:scale-105 transition-transform duration-200">
+              <div className="w-24 h-24 bg-gradient-to-br from-soft-pink-200 to-peach-200 rounded-full flex items-center justify-center text-4xl border-4 border-white shadow-xl hover:scale-110 transition-transform duration-300">
                 🐕
               </div>
             )}
-            <div className="flex-1">
-              <h4 className="text-2xl font-bold text-warm-gray-800 mb-1">{mainDog.name}</h4>
-              <div className="space-y-1">
-                <p className="text-sm text-soft-gray-400 flex items-center gap-2">
+            <div className="flex-1 ml-2">
+              <h4 className="text-2xl font-serif font-bold text-warm-gray-800 mb-2">{mainDog.name}</h4>
+              <div className="space-y-2">
+                <p className="text-sm text-soft-gray-400 flex items-center gap-3 font-light">
                   <span>🎂</span>
                   <span>{calculateAge(mainDog.birthDate)}</span>
                 </p>
-                <p className="text-sm text-soft-gray-400 flex items-center gap-2">
+                <p className="text-sm text-soft-gray-400 flex items-center gap-3 font-light">
                   <span>🐕</span>
                   <span>{mainDog.breed}</span>
                 </p>
-                <p className="text-sm text-soft-gray-400 flex items-center gap-2">
+                <p className="text-sm text-soft-gray-400 flex items-center gap-3 font-light">
                   <span>⚖️</span>
                   <span>{mainDog.weight}kg</span>
                 </p>
@@ -272,10 +272,10 @@ export default function Home() {
 
         {/* 오늘의 리마인더 */}
         {todayReminders.length > 0 && (
-          <div className="bg-gradient-to-r from-coral-50 to-apricot-50 border-2 border-coral-200 rounded-2xl p-6 shadow-md">
-            <div className="flex items-center gap-3 mb-4">
-              <Bell className="w-6 h-6 text-coral-600" />
-              <h3 className="text-lg font-semibold text-warm-gray-800">📌 오늘의 일정</h3>
+          <div className="instagram-card glass-effect rounded-3xl shadow-lg p-6 bg-gradient-to-br from-lavender-50/80 to-soft-pink-50/80">
+            <div className="flex items-center gap-3 mb-6">
+              <Bell className="w-7 h-7 text-lavender-600" />
+              <h3 className="text-xl font-serif font-bold text-warm-gray-800">📌 오늘의 일정</h3>
             </div>
             
             <div className="space-y-3">
