@@ -131,6 +131,35 @@ body {
   font-family: 'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
+}
+
+/* 한글 텍스트 가로 표시 강제 설정 */
+* {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+}
+
+/* 모바일에서 텍스트 가로 표시 유틸리티 클래스 */
+.text-horizontal {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  direction: ltr !important;
+}
+
+/* 텍스트 줄바꿈 방지 */
+.no-wrap {
+  white-space: nowrap !important;
+}
+
+/* 모바일 최적화된 텍스트 설정 */
+@media (max-width: 768px) {
+  span, div, p, h1, h2, h3, h4, h5, h6 {
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+    direction: ltr !important;
+  }
 }
 
 /* 인스타그램 스타일 부드러운 애니메이션 */

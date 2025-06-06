@@ -504,13 +504,13 @@ export default function DiaryPage() {
                           <div className="flex items-center gap-3 mb-3">
                             <div className="text-2xl">{moodEmojis[entry.mood]}</div>
                             <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <span className="font-semibold text-gray-900">{dog?.name}</span>
-                                <span className="text-sm text-gray-500">•</span>
-                                <span className="text-sm text-gray-600">{moodNames[entry.mood]}</span>
+                              <div className="flex items-center gap-2 flex-wrap text-horizontal">
+                                <span className="font-semibold text-gray-900 whitespace-nowrap text-horizontal">{dog?.name}</span>
+                                <span className="text-sm text-gray-500 text-horizontal">•</span>
+                                <span className="text-sm text-gray-600 whitespace-nowrap text-horizontal">{moodNames[entry.mood]}</span>
                                 {/* 공개 여부 표시 */}
-                                <span className="text-sm text-gray-500">•</span>
-                                <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                                <span className="text-sm text-gray-500 text-horizontal">•</span>
+                                <span className={`text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap text-horizontal ${
                                   entry.isPublic 
                                     ? 'bg-blue-100 text-blue-700' 
                                     : 'bg-gray-100 text-gray-600'
@@ -519,7 +519,7 @@ export default function DiaryPage() {
                                 </span>
                               </div>
                               {entry.title && (
-                                <h3 className="font-bold text-gray-900 mt-1">{entry.title}</h3>
+                                <h3 className="font-bold text-gray-900 mt-1 text-horizontal">{entry.title}</h3>
                               )}
                             </div>
                             
@@ -546,7 +546,7 @@ export default function DiaryPage() {
                           <div className="bg-white/50 rounded-2xl p-4">
                             <div className="flex items-start gap-2">
                               <MessageCircle className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                              <p className="text-gray-700 leading-relaxed">
+                              <p className="text-gray-700 leading-relaxed text-horizontal">
                                 {entry.content}
                               </p>
                             </div>
@@ -556,7 +556,7 @@ export default function DiaryPage() {
                           {entry.tags && entry.tags.length > 0 && (
                             <div className="flex flex-wrap gap-2 mt-4">
                               {entry.tags.map((tag, index) => (
-                                <span key={index} className="text-xs bg-white/70 text-gray-700 px-3 py-1 rounded-full border">
+                                <span key={index} className="text-xs bg-white/70 text-gray-700 px-3 py-1 rounded-full border text-horizontal whitespace-nowrap">
                                   #{tag}
                                 </span>
                               ))}

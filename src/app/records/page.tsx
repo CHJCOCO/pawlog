@@ -209,13 +209,19 @@ export default function RecordsPage() {
               {/* 섹션 헤더 */}
               <div className={`${style.bg} ${style.border} border-b px-6 py-4`}>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      setSelectedRoutineType(routineType);
+                      setIsAddModalOpen(true);
+                    }}
+                    className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+                  >
                     <div className="text-2xl">{style.emoji}</div>
                     <div>
                       <h3 className="font-bold text-gray-900">{routineNames[routineType]}</h3>
                       <p className="text-sm text-gray-600">{records.length}회 기록</p>
                     </div>
-                  </div>
+                  </button>
                   <button
                     onClick={() => {
                       setSelectedRoutineType(routineType);
